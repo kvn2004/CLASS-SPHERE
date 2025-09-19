@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassSphere - Student Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar vh-100">
+                <div id="sidebar"></div>
+            </nav>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-1">Dashboard</h2>
+                        <p class="text-muted mb-0">Welcome to ClassSphere Management System</p>
+                    </div>
+                </div>
+                
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>1,247</h3>
+                                <p>Total Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>89</h3>
+                                <p>Teachers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>45</h3>
+                                <p>Courses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-info">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>156</h3>
+                                <p>Active Sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="demo-section">
+                            <h5 class="mb-3">Quick Actions</h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <a href="students.html" class="btn btn-outline-primary w-100 p-3">
+                                        <i class="fas fa-user-plus fa-2x mb-2"></i>
+                                        <br>Add Student
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <a href="teachers.html" class="btn btn-outline-success w-100 p-3">
+                                        <i class="fas fa-user-tie fa-2x mb-2"></i>
+                                        <br>Add Teacher
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <a href="courses.html" class="btn btn-outline-warning w-100 p-3">
+                                        <i class="fas fa-book-open fa-2x mb-2"></i>
+                                        <br>Create Course
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <a href="attendance.html" class="btn btn-outline-info w-100 p-3">
+                                        <i class="fas fa-check-square fa-2x mb-2"></i>
+                                        <br>Mark Attendance
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="demo-section">
+                            <h5 class="mb-3">Recent Activity</h5>
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <div class="activity-icon bg-success">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="mb-1">New student enrolled: <strong>John Doe</strong></p>
+                                        <small class="text-muted">2 hours ago</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon bg-primary">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="mb-1">New session scheduled: <strong>Mathematics - Grade 10</strong></p>
+                                        <small class="text-muted">4 hours ago</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon bg-warning">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="mb-1">Payment received from <strong>Sarah Khan</strong></p>
+                                        <small class="text-muted">6 hours ago</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon bg-info">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="mb-1">Attendance marked for <strong>Physics Class</strong></p>
+                                        <small class="text-muted">1 day ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="demo-section">
+                            <h5 class="mb-3">Upcoming Sessions</h5>
+                            <div class="session-list">
+                                <div class="session-item">
+                                    <div class="session-time">
+                                        <strong>10:00 AM</strong>
+                                        <small>Today</small>
+                                    </div>
+                                    <div class="session-details">
+                                        <p class="mb-1"><strong>Mathematics</strong></p>
+                                        <small class="text-muted">Grade 10 - Room 101</small>
+                                    </div>
+                                </div>
+                                <div class="session-item">
+                                    <div class="session-time">
+                                        <strong>2:00 PM</strong>
+                                        <small>Today</small>
+                                    </div>
+                                    <div class="session-details">
+                                        <p class="mb-1"><strong>Chemistry</strong></p>
+                                        <small class="text-muted">Grade 11 - Lab 1</small>
+                                    </div>
+                                </div>
+                                <div class="session-item">
+                                    <div class="session-time">
+                                        <strong>9:00 AM</strong>
+                                        <small>Tomorrow</small>
+                                    </div>
+                                    <div class="session-details">
+                                        <p class="mb-1"><strong>Physics</strong></p>
+                                        <small class="text-muted">Grade 12 - Room 203</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+        <script>
+            $(function() {
+                $("#sidebar").load("sidebar.html", function() {
+                    $("#sidebar .nav-link").each(function() {
+                        if (window.location.pathname.endsWith($(this).attr("href"))) {
+                            $(this).addClass("active");
+                        } else {
+                            $(this).removeClass("active");
+                        }
+                    });
+                });
+            });
+        </script>
+        <script src="js/common.js"></script>
+</body>
+</html>
