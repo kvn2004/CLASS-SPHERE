@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Success | ClassSphere</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+  <div class="text-center">
+    <h2 class="text-success">Payment Successful!</h2>
+    <p id="message">Updating your payment status...</p>
+  </div>
+
+  <script>
+    // PayHere sends GET parameters in the URL (order_id, payment_id, status_code)
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('order_id');
+    const paymentId = urlParams.get('payment_id');
+    const statusCode = urlParams.get('status_code');
+    const custom1 = urlParams.get('custom_1'); // studentId
+    const custom2 = urlParams.get('custom_2'); // courseId
+
+    if (!orderId || !paymentId) {
+      document.getElementById('message').innerText = "Invalid payment details!";
+    } else {
+      $.ajax({
+        url: 'http://localhost:8080/api/payments/confirm',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          orderId: orderId,
+          paymentId: paymentId,
+          statusCode: statusCode,
+          studentId: custom1,
+          courseId: custom2
+        }),
+        success: function(res) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Payment Recorded',
+            text: 'Your payment has been successfully recorded!',
+            confirmButtonText: 'OK'
+          }).then(() => window.location.href = '/payments.html');
+        },
+        error: function(err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Could not update payment. Contact admin!',
+            confirmButtonText: 'OK'
+          });
+        }
+      });
+    }
+  </script>
+</body>
+</html>

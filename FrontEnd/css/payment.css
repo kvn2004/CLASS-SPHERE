@@ -1,0 +1,18 @@
+body {
+    background: #f8fafc;
+}
+#sidebar-container {
+    min-height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+}
+.card {
+    border-radius: 1rem;
+}
+.table thead th {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+.table td, .table th {
+    vertical-align: middle;
+}

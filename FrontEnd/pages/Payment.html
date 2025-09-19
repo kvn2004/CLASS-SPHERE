@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments | ClassSphere</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/payment.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-2 p-0" id="sidebar-container"></div>
+        <!-- Main Content -->
+        <div class="col-10 px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="fw-bold">Payments</h2>
+                    <div class="text-muted">Manage and review student payments</div>
+                </div>
+                <div>
+                    <button class="btn btn-success" id="addPaymentBtn"><i class="bi bi-plus-lg"></i> Add Payment</button>
+                </div>
+            </div>
+            <!-- Payment Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form id="paymentForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="studentIdInput" class="form-label">Student ID</label>
+                            <div class="input-group">
+                                <input type="text" id="studentIdInput" class="form-control" placeholder="Enter student ID">
+                                <button type="button" class="btn btn-outline-primary" id="loadCoursesBtn">Fetch Courses</button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="courseSelect" class="form-label">Select Course</label>
+                            <select id="courseSelect" class="form-select">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="paymentMonth" class="form-label">Payment Month</label>
+                            <input type="month" id="paymentMonth" class="form-control">
+                            <div class="form-text">Example: <code>2025-09</code> for September 2025</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="amount" class="form-label">Amount</label>
+                            <input type="number" id="amount" class="form-control" placeholder="Enter amount">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                            <select id="paymentMethod" class="form-select">
+                                <option value="">-- Select Method --</option>
+                                <option value="CASH">Cash</option>
+                                <option value="CARD">Card</option>
+                                <option value="ONLINE">Online</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea id="notes" class="form-control"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button id="submitPaymentBtn" class="btn btn-success" type="submit">Submit Payment</button>
+                            <!-- PayHere button -->
+                            <button id="payHereBtn" type="button" class="btn btn-primary d-none">
+                                <i class="bi bi-credit-card"></i> Pay with PayHere
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Recent Payments Table -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-cash-coin me-2"></i>Recent Payments</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="paymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+<!-- PayHere SDK -->
+<script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
+
+<!-- Custom JS -->
+<script src="../js/payment.js"></script>
+<script>
+  // Load sidebar
+  $(function() {
+    $('#sidebar-container').load('sidebar.html');
+
+    // Show PayHere button only if ONLINE method selected
+    $('#paymentMethod').on('change', function () {
+      if ($(this).val() === 'ONLINE') {
+        $('#payHereBtn').removeClass('d-none');
+        $('#submitPaymentBtn').addClass('d-none');
+      } else {
+        $('#payHereBtn').addClass('d-none');
+        $('#submitPaymentBtn').removeClass('d-none');
+      }
+    });
+  });
+</script>
+</body>
+</html>
