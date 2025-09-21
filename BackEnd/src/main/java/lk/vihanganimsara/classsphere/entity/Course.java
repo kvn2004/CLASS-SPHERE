@@ -65,4 +65,6 @@ public class Course {
     // TeacherPayments belong to Course → Cascade
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeacherPayment> teacherPayments = new ArrayList<>();
+
+
 }

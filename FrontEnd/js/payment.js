@@ -6,7 +6,8 @@ window.onload = async () => {
         const cookie = await cookieStore.get("token");
         if (cookie && cookie.value) {
             token = cookie.value;
-            loadRecentPayments(); // fetch recent payments on page load
+            loadRecentPayments();
+             // fetch recent payments on page load
         } else {
             window.location.href = "../index.html";
         }

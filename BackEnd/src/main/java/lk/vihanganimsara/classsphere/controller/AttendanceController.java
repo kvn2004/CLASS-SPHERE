@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -76,6 +77,14 @@ public class AttendanceController {
     @GetMapping("/recent")
     public List<AttendanceDto> getRecentAttendances(@RequestParam int limit) {
         return attendanceService.getRecentAttendances(limit);
+    }
+
+    @GetMapping("/summaryToday")
+    public ResponseEntity<ApiResponse> getTodaySummary() {
+        Map<String, Long> summary = attendanceService.getTodaySummary();
+        return ResponseEntity.ok(
+                new ApiResponse(200, "Attendance summary for today", summary)
+        );
     }
 
 }

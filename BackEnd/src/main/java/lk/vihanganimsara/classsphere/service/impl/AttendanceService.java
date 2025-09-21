@@ -18,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -179,6 +181,19 @@ public class AttendanceService {
         log.info("Audit: Attendance marked by {}", performedBy);
     }
 
+    public Map<String, Long> getTodaySummary() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = today.atTime(LocalTime.MAX);
+
+        Map<String, Long> summary = new HashMap<>();
+        summary.put("present", attendanceRepo.countByStatusAndMarkedAtBetween(AttendanceStatus.PRESENT, start, end));
+        summary.put("absent", attendanceRepo.countByStatusAndMarkedAtBetween(AttendanceStatus.ABSENT, start, end));
+        summary.put("late", attendanceRepo.countByStatusAndMarkedAtBetween(AttendanceStatus.LATE, start, end));
+        summary.put("sessions", sessionRepo.countBySessionDate(today));
+
+        return summary;
+    }
 
 
 }

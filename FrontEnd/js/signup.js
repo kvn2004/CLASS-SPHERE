@@ -36,7 +36,8 @@ $("#registerForm").submit(function (e) {
         dataType: "json",
         contentType: "application/json",
         success: function (response) {
-            if (response.status === 200) {
+            console.log("Registration response:", response);
+            if (response && response.statusCode === 200) {
                 showAlert(
                     "signUpAlert",
                     response.message,

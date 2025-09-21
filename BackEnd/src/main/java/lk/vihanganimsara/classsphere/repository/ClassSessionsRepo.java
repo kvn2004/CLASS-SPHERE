@@ -16,4 +16,5 @@ public interface ClassSessionsRepo extends JpaRepository<CourseSession, String> 
 
     List<CourseSession> findBySessionDateBetween(LocalDate start, LocalDate end);
     List<CourseSession> findBySessionDate(LocalDate date);
+    long countBySessionDate(LocalDate date);
 }

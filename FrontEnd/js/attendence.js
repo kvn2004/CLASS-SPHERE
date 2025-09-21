@@ -1,85 +1,34 @@
-    // Mark attendance via QR modal
-    $('#markPresentBtn').on('click', function() {
-        const qrCode = $('#studentCodeInput').val().trim();
-        const sessionId = $('#sessionSelectQR').val().trim();
-        if (!qrCode || !sessionId) {
-            Swal.fire('Please enter QR code and select session', '', 'warning');
-            return;
-        }
-        Swal.fire({
-            title: 'Marking attendance...',
-            html: '<div id="swal-steps"><div>Marking attendance...</div></div>',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        $.ajax({
-            url: `http://localhost:8080/api/attendance/mark?qrCode=${encodeURIComponent(qrCode)}&sessionId=${encodeURIComponent(sessionId)}`,
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            success: function() {
-                // Simulate sending email step
-                $('#swal-steps').append('<div>Sending E-mail to Parents...</div>');
-                setTimeout(function() {
-                    $('#swal-steps').append('<div class="text-success">Done.</div>');
-                    setTimeout(function() {
-                        Swal.fire('Marked Present!', 'Attendance marked and parent notified.', 'success');
-                        $('#qrModal').modal('hide');
-                        loadAttendanceRecords();
-                    }, 900);
-                }, 1200);
-            },
-            error: function(xhr) {
-                Swal.fire('Failed to mark attendance', xhr.responseJSON?.message || xhr.statusText, 'error');
-            }
-        });
-    });
-    // Fetch student ID from QR code
-    $('#studentCodeInput').on('change blur', function() {
-        const qrCode = $(this).val().trim();
-        if (!qrCode) {
-            $('#studentIdQR').val('');
-            return;
-        }
-        $.ajax({
-            url: `http://localhost:8080/api/students/student/id-by-qr?qrCodeContent=${encodeURIComponent(qrCode)}`,
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` },
-            success: function(studentId) {
-                $('#studentIdQR').val(studentId);
-            },
-            error: function(xhr) {
-                $('#studentIdQR').val('');
-                Swal.fire('Student not found for this QR code', '', 'warning');
-            }
-        });
-    });
 let token = null;
 let isAuthenticated = false;
 let isDomReady = false;
 let selectedCourseId = null;
 let sessionIdToCourseId = {};
 
-/* ---------------- Utility: Try Load Attendance ---------------- */
+// -------------------- Global AJAX Setup --------------------
+$.ajaxSetup({
+    beforeSend: function (xhr) {
+        if (token) {
+            xhr.setRequestHeader("Authorization", "Bearer " + token);
+        }
+    }
+});
+
+// -------------------- Utility Functions --------------------
 function tryLoadAttendanceRecords() {
     if (isAuthenticated && isDomReady) {
         loadAttendanceRecords();
     }
 }
 
-/* ---------------- Load Recent Attendance ---------------- */
 function loadAttendanceRecords() {
     $.ajax({
         url: 'http://localhost:8080/api/attendance/recent?limit=10',
         method: 'GET',
         dataType: 'json',
-        headers: { 'Authorization': `Bearer ${token}` },
-        success: function(records) {
+        success: function (records) {
             renderAttendanceTable(records);
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             const tbody = $('#attendanceTable tbody');
             tbody.empty().append('<tr><td colspan="8" class="text-danger">Error loading attendance records.</td></tr>');
             console.error('Error fetching attendance records:', status, error);
@@ -87,7 +36,6 @@ function loadAttendanceRecords() {
     });
 }
 
-/* ---------------- Render Attendance Table ---------------- */
 function renderAttendanceTable(records) {
     const tbody = $("#attendanceTable tbody");
     tbody.empty();
@@ -132,7 +80,27 @@ function renderAttendanceTable(records) {
     });
 }
 
-/* ---------------- Filter Attendance ---------------- */
+function loadAttendanceSummary() {
+    $.ajax({
+        url: 'http://localhost:8080/api/attendance/summaryToday',
+        method: 'GET',
+        success: function (response) {
+            console.log("Attendance summary loaded:", response);
+            if (response && response.data) {
+                $('#presentToday').text(response.data.present);
+                $('#absentToday').text(response.data.absent);
+                $('#lateArrivals').text(response.data.late);
+                $('#totalSessions').text(response.data.sessions);
+            }
+        },
+        error: function () {
+            $('#presentToday').text('0');
+            $('#absentToday').text('0');
+            $('#lateArrivals').text('0');
+            $('#totalSessions').text('0');
+        }
+    });
+}
 $('#searchInput, #statusFilter, #dateFilter').on('input change', function () {
     const studentId = $('#searchInput').val().trim();
     const status = $('#statusFilter').val();
@@ -163,7 +131,7 @@ $('#searchInput, #statusFilter, #dateFilter').on('input change', function () {
     });
 });
 
-/* ---------------- Load Sessions ---------------- */
+// -------------------- Sessions & Students --------------------
 function loadSessionsForDropdown() {
     const select = $('#sessionSelect');
     select.empty().append('<option value="">Select session</option>');
@@ -173,11 +141,10 @@ function loadSessionsForDropdown() {
         url: 'http://localhost:8080/api/sessions/today',
         method: 'GET',
         dataType: 'json',
-        headers: { 'Authorization': `Bearer ${token}` },
-        success: function(response) {
+        success: function (response) {
             if (response?.data?.length > 0) {
                 response.data.forEach(sess => {
-                    const display = `${sess.courseTitle} - ${sess.sessionDate} ${sess.startTime.substring(0,5)}`;
+                    const display = `${sess.courseTitle} - ${sess.sessionDate} ${sess.startTime.substring(0, 5)}`;
                     select.append(`<option value="${sess.sessionId}">${display}</option>`);
                     sessionIdToCourseId[sess.sessionId] = sess.courseId;
                 });
@@ -185,13 +152,12 @@ function loadSessionsForDropdown() {
                 select.append('<option disabled>No sessions found</option>');
             }
         },
-        error: function() {
+        error: function () {
             select.append('<option disabled>Error loading sessions</option>');
         }
     });
 }
 
-/* ---------------- Load Students for Session ---------------- */
 function loadStudentsForSession(sessionId) {
     const courseId = sessionIdToCourseId[sessionId] || null;
     selectedCourseId = courseId;
@@ -207,10 +173,8 @@ function loadStudentsForSession(sessionId) {
         url: `http://localhost:8080/api/enrollments/course/${courseId}`,
         method: 'GET',
         dataType: 'json',
-        headers: { 'Authorization': `Bearer ${token}` },
-        success: function(response) {
+        success: function (response) {
             if (response?.data?.length > 0) {
-                // Store student IDs for marking attendance
                 const students = response.data;
                 list.data('students', students);
                 students.forEach(stu => {
@@ -228,48 +192,81 @@ function loadStudentsForSession(sessionId) {
                 list.append('<div class="text-muted">No students enrolled for this course.</div>');
             }
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             console.error('Error loading students:', status, error);
             list.append('<div class="text-danger">Error loading students.</div>');
         }
     });
 }
 
-/* ---------------- Page Load ---------------- */
-window.onload = async () => {
-    try {
-        const cookie = await cookieStore.get("token");
-        if (cookie?.value) {
-            token = cookie.value;
-            isAuthenticated = true;
-            tryLoadAttendanceRecords();
-        } else {
-            window.location.href = "../index.html";
-        }
-    } catch (err) {
-        console.error("CookieStore not supported:", err);
-        window.location.href = "../index.html";
+// -------------------- QR Code Marking --------------------
+$('#markPresentBtn').on('click', function () {
+    const qrCode = $('#studentCodeInput').val().trim();
+    const sessionId = $('#sessionSelectQR').val().trim();
+    if (!qrCode || !sessionId) {
+        Swal.fire('Please enter QR code and select session', '', 'warning');
+        return;
     }
-};
+    Swal.fire({
+        title: 'Marking attendance...',
+        html: '<div id="swal-steps"><div>Marking attendance...</div></div>',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+    });
+    $.ajax({
+        url: `http://localhost:8080/api/attendance/mark?qrCode=${encodeURIComponent(qrCode)}&sessionId=${encodeURIComponent(sessionId)}`,
+        method: 'POST',
+        success: function () {
+            $('#swal-steps').append('<div>Sending E-mail to Parents...</div>');
+            setTimeout(function () {
+                $('#swal-steps').append('<div class="text-success">Done.</div>');
+                setTimeout(function () {
+                    Swal.fire('Marked Present!', 'Attendance marked and parent notified.', 'success');
+                    $('#qrModal').modal('hide');
+                    loadAttendanceRecords();
+                    loadAttendanceSummary();
+                }, 900);
+            }, 1200);
+        },
+        error: function (xhr) {
+            Swal.fire('Failed to mark attendance', xhr.responseJSON?.message || xhr.statusText, 'error');
+        }
+    });
+});
 
-/* ---------------- Document Ready ---------------- */
-$(document).ready(function() {
+$('#studentCodeInput').on('change blur', function () {
+    const qrCode = $(this).val().trim();
+    if (!qrCode) {
+        $('#studentIdQR').val('');
+        return;
+    }
+    $.ajax({
+        url: `http://localhost:8080/api/students/student/id-by-qr?qrCodeContent=${encodeURIComponent(qrCode)}`,
+        method: 'GET',
+        success: function (studentId) {
+            $('#studentIdQR').val(studentId);
+        },
+        error: function () {
+            $('#studentIdQR').val('');
+            Swal.fire('Student not found for this QR code', '', 'warning');
+        }
+    });
+});
+
+// -------------------- Document Ready --------------------
+$(document).ready(function () {
     isDomReady = true;
     tryLoadAttendanceRecords();
+    loadAttendanceSummary();
 
-    // Dummy stats
-    $('#presentToday').text('156');
-    $('#absentToday').text('12');
-    $('#lateArrivals').text('8');
-    $('#totalSessions').text('24');
-
-    // Mark Attendance Modal
-    $('#markAttendanceBtn').on('click', function() {
+    $('#markAttendanceBtn').on('click', function () {
         $('#markAttendanceModal').modal('show');
         loadSessionsForDropdown();
         $('#studentsList').empty();
     });
-    $('#qrScanBtn').on('click', function() {
+
+    $('#qrScanBtn').on('click', function () {
         loadSessionsForQRDropdown();
         $('#qrModal').modal('show');
     });
@@ -281,10 +278,9 @@ $(document).ready(function() {
             url: 'http://localhost:8080/api/sessions/today',
             method: 'GET',
             dataType: 'json',
-            headers: { 'Authorization': `Bearer ${token}` },
-            success: function(response) {
-                if (response && response.data && Array.isArray(response.data)) {
-                    response.data.forEach(function(sess) {
+            success: function (response) {
+                if (response?.data?.length > 0) {
+                    response.data.forEach(sess => {
                         let display = `${sess.courseTitle} - ${sess.sessionDate} ${sess.startTime.substring(0,5)}`;
                         select.append(`<option value="${sess.sessionId}">${display}</option>`);
                     });
@@ -292,19 +288,17 @@ $(document).ready(function() {
                     select.append('<option disabled>No sessions found</option>');
                 }
             },
-            error: function() {
+            error: function () {
                 select.append('<option disabled>Error loading sessions</option>');
             }
         });
     }
 
-    $('#sessionSelect').on('change', function() {
-        const sessionId = $(this).val();
-        loadStudentsForSession(sessionId);
+    $('#sessionSelect').on('change', function () {
+        loadStudentsForSession($(this).val());
     });
 
-    // Handler for per-student Mark Present button
-    $(document).on('click', '.mark-present-btn', function() {
+    $(document).on('click', '.mark-present-btn', function () {
         const studentId = $(this).data('student-id');
         const studentName = $(this).data('student-name');
         const sessionId = $('#sessionSelect').val().trim();
@@ -312,37 +306,55 @@ $(document).ready(function() {
             Swal.fire('No session or student found', '', 'warning');
             return;
         }
+
         Swal.fire({
             title: `Marking attendance for ${studentName}...`,
             html: '<div id="swal-steps"><div>Marking attendance...</div></div>',
             allowOutsideClick: false,
             allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => Swal.showLoading()
         });
+
         $.ajax({
-            url:  `http://localhost:8080/api/attendance/markAttendanceByStudentId?studentId=${encodeURIComponent(studentId)}&sessionId=${encodeURIComponent(sessionId)}`,
+            url: `http://localhost:8080/api/attendance/markAttendanceByStudentId?studentId=${encodeURIComponent(studentId)}&sessionId=${encodeURIComponent(sessionId)}`,
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            success: function() {
+            success: function () {
                 $('#swal-steps').append('<div>Sending E-mail to Parents...</div>');
-                setTimeout(function() {
+                setTimeout(function () {
                     $('#swal-steps').append('<div class="text-success">Done.</div>');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         Swal.fire('Marked Present!', `${studentName} marked present and parent notified.`, 'success');
                         loadAttendanceRecords();
+                        loadAttendanceSummary();
                     }, 900);
                 }, 1200);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 Swal.fire('Failed to mark attendance', xhr.responseJSON?.message || xhr.statusText, 'error');
             }
         });
     });
 
-    // Edit Attendance
-    $(document).on('click', '.edit-btn', function() {
+    $(document).on('click', '.edit-btn', function () {
         Swal.fire('Edit attendance not implemented yet.');
     });
 });
+
+// -------------------- Window Onload --------------------
+window.onload = async () => {
+    try {
+        const cookie = await cookieStore.get("token");
+        if (cookie?.value) {
+            token = cookie.value;
+            isAuthenticated = true;
+            console.log("User authenticated:", token);
+            tryLoadAttendanceRecords();
+            loadAttendanceSummary();
+        } else {
+            window.location.href = "../index.html";
+        }
+    } catch (err) {
+        console.error("CookieStore not supported:", err);
+        window.location.href = "../index.html";
+    }
+};

@@ -15,6 +15,10 @@ import java.util.List;
 public interface AttendanceRepo extends JpaRepository<Attendance, Integer> {
     boolean existsByStudentAndSession(Student student, CourseSession session);
 
+    long countByStatusAndMarkedAtBetween(AttendanceStatus status,
+                                         LocalDateTime startOfDay,
+                                         LocalDateTime endOfDay);
+
     // ✅ Find by session
 
     List<Attendance> findBySession_SessionId(String sessionId);
