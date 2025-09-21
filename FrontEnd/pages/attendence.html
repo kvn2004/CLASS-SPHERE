@@ -128,8 +128,19 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="studentCodeInput" class="form-label">Student Code</label>
+          <label for="sessionSelectQR" class="form-label">Session</label>
+          <select class="form-select" id="sessionSelectQR">
+            <option value="">Select session</option>
+            <!-- Dynamic options -->
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="studentCodeInput" class="form-label">Student QR/Code</label>
           <input type="text" class="form-control" id="studentCodeInput" placeholder="Scan QR or enter student code">
+        </div>
+        <div class="mb-3">
+          <label for="studentIdQR" class="form-label">Student ID</label>
+          <input type="text" class="form-control" id="studentIdQR" placeholder="Student ID will appear here" readonly>
         </div>
         <div class="border rounded d-flex flex-column align-items-center justify-content-center py-4 mb-3" style="min-height:120px;">
           <i class="bi bi-qr-code fs-1 mb-2"></i>
@@ -159,9 +170,7 @@
         </div>
         <div id="studentsList" class="mb-3" style="max-height:350px;overflow-y:auto;">
           <!-- Dynamic student list -->
-        </div>
-        <button class="btn btn-success w-100" id="saveAttendanceBtn">Save Attendance</button>
-      </div>
+       
     </div>
   </div>
 </div>

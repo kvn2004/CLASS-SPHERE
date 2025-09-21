@@ -110,12 +110,22 @@ $('#paymentForm').on('submit', function (e) {
 
 // PayHere button click
 $('#payHereBtn').on('click', function () {
-    const studentId = "S123"; // Example
-    const courseId = "C001";
-    const amount = 5000.00; // Example fee
+    const studentId = $('#studentIdInput').val().trim();
+    const courseId = $('#courseSelect').val();
+    const amount = parseFloat($('#amount').val().trim());
+    const paymentMonth = $('#paymentMonth').val();
+    const notes = $('#notes').val();
+
+    if (!studentId || !courseId || !amount || !paymentMonth) {
+        return Swal.fire('Please fill all required fields before proceeding to PayHere');
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+        return Swal.fire('Invalid payment amount');
+    }
 
     const orderId = "ORDER" + Date.now();
-    
+
     // Request hash from backend
     $.ajax({
         url: "http://localhost:8080/api/payments/generate-hash",
@@ -123,40 +133,39 @@ $('#payHereBtn').on('click', function () {
         contentType: "application/json",
         headers: { 'Authorization': `Bearer ${token}` },
         data: JSON.stringify({ orderId, amount, currency: "LKR" }),
-        success: function(res) {
-            const payment = {
-                sandbox: true, // Must be true for testing
-                merchant_id: res.merchantId,
-                return_url: "http://127.0.0.1:5500/payments-success.html",
-                cancel_url: "http://127.0.0.1:5500/payments-cancel.html",
-                notify_url: "http://127.0.0.1:8080/api/payments/notify",
-                order_id: orderId,
-                items: "Course Fee",
-                amount: "1000.00", // 2 decimals
-                currency: "LKR",
-                hash: res.hash,
-                first_name: "Student",
-                last_name: studentId,
-                email: "student@email.com",
-                phone: "0771234567",
-                address: "Colombo",
-                city: "Colombo",
-                country: "Sri Lanka",
-                onCompleted: function(orderId) {
-                    console.log("Payment completed:", orderId);
-                    alert("Payment completed: " + orderId);
-                },
-                onDismissed: function() {
-                    console.log("Payment cancelled");
-                },
-                onError: function(err) {
-                    console.error("PayHere error:", err);
-                }
+        success: function (res) {
+            console.log(res);
+
+            var payment = {
+                "sandbox": true,
+                "merchant_id": res.merchantId,    // Replace your Merchant ID
+                "return_url": "http://127.0.0.1:5500/pages/payments-success.html",     // Important
+                "cancel_url": "http://127.0.0.1:5500/pages/payments-cancel.html",     // Important
+                "notify_url": "http://localhost:8080/notify",
+                "order_id": "ItemNo12345",
+                "items": "Door bell wireles",
+                "amount": "1000.00",
+                "currency": "LKR",
+                "hash": res.hash, // *Replace with generated hash retrieved from backend
+                "first_name": "Saman",
+                "last_name": "Perera",
+                "email": "samanp@gmail.com",
+                "phone": "0771234567",
+                "address": "No.1, Galle Road",
+                "city": "Colombo",
+                "country": "Sri Lanka",
+                "delivery_address": "No. 46, Galle road, Kalutara South",
+                "delivery_city": "Kalutara",
+                "delivery_country": "Sri Lanka",
+                "custom_1": "",
+                "custom_2": ""
             };
+            console.log("Starting PayHere payment:", payment);
             payhere.startPayment(payment);
         },
-        error: function(err) {
+        error: function (err) {
             console.error("Failed to generate hash:", err);
+            Swal.fire("Payment Error", "Failed to initialize PayHere payment", "error");
         }
     });
 });

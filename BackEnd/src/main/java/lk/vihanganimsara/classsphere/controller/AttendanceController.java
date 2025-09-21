@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -26,9 +28,10 @@ public class AttendanceController {
     @PostMapping("/mark")
     public ResponseEntity<ApiResponse> markAttendance(
             @RequestParam String qrCode,
-            @RequestParam String sessionId,
-            @RequestHeader("X-User") String performedBy) {
+            @RequestParam String sessionId) {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String performedBy = authentication != null ? authentication.getName() : "SYSTEM";
         attendanceService.markAttendance(qrCode, sessionId, performedBy);
 
         return new ResponseEntity<>(
@@ -36,6 +39,24 @@ public class AttendanceController {
                 HttpStatus.OK
         );
     }
+
+    @PostMapping("/markAttendanceByStudentId")
+    public ResponseEntity<ApiResponse> markAttendanceByStudentId(
+            @RequestParam String studentId,
+            @RequestParam String sessionId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String performedBy = authentication != null ? authentication.getName() : "SYSTEM";
+
+        attendanceService.markAttendanceByStudentId(studentId, sessionId, performedBy);
+
+        return new ResponseEntity<>(
+                new ApiResponse(200, "Attendance marked successfully", true),
+                HttpStatus.OK
+        );
+    }
+
+
 
     @GetMapping("/filter")
     public ApiResponse filterAttendance(

@@ -88,5 +88,12 @@ public class StudentController {
                 HttpStatus.OK);
     }
 
+    @GetMapping("/student/id-by-qr")
+    public String getStudentIdByQr(@RequestParam String qrCodeContent) {
+        String studentId = studentService.getStudentIdByQrCode(qrCodeContent);
+        if (studentId == null) return "Student not found";
+        return studentId;
+    }
+
 
 }

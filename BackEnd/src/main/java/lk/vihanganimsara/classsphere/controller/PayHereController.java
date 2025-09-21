@@ -5,6 +5,8 @@ import lk.vihanganimsara.classsphere.dto.PaymentRequestDto;
 import lk.vihanganimsara.classsphere.entity.Payment;
 import lk.vihanganimsara.classsphere.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -24,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
 @CrossOrigin("*")
-@Slf4j
+
 public class PayHereController {
 
     private static final Logger log = LoggerFactory.getLogger(PayHereController.class);
@@ -40,7 +42,8 @@ public class PayHereController {
         String amount = dto.getAmount().setScale(2, RoundingMode.HALF_UP).toString();
 
         String toHash = merchantId + dto.getOrderId() + amount + dto.getCurrency() + merchantSecret;
-        String hash = DigestUtils.sha256Hex(toHash).toUpperCase();
+        String hash = DigestUtils.md5Hex(toHash).toUpperCase();
+
 
         Map<String, String> response = new HashMap<>();
         response.put("merchantId", merchantId);

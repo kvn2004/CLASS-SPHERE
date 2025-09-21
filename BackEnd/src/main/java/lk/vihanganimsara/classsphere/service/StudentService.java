@@ -11,4 +11,6 @@ public interface StudentService {
     public void update(StudentDto studentDto, MultipartFile photo) throws Exception;
     List<StudentDto> getAll();
     void deleteById(String id);
+
+    String getStudentIdByQrCode(String qrCodeContent);
 }

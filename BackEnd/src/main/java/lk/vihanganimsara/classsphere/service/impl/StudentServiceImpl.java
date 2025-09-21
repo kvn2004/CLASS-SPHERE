@@ -136,4 +136,8 @@ public class StudentServiceImpl implements StudentService {
         auditLogRepo.save(log);
 
     }
+
+    public String getStudentIdByQrCode(String qrCodeContent) {
+        return studentRepository.findIdByQrCodeContent(qrCodeContent).orElse(null);
+    }
 }

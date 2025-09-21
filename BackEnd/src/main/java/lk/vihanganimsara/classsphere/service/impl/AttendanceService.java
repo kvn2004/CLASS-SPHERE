@@ -37,7 +37,7 @@ public class AttendanceService {
                 .orElseThrow(() -> new RuntimeException("Invalid QR code"));
 
         // 2. Find session
-        CourseSession session = sessionRepo.findById(sessionId)
+        CourseSession session = sessionRepo.findByTrimmedSessionId(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
         LocalDate today = LocalDate.now();
@@ -120,6 +120,66 @@ public class AttendanceService {
                 })
                 .toList();
     }
+
+    @Transactional
+    public void markAttendanceByStudentId(String studentId, String sessionId, String performedBy) {
+        // 1. Find student by ID
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // 2. Find session
+        CourseSession session = sessionRepo.findByTrimmedSessionId(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        // 3. Validate session date
+        if (!session.getSessionDate().isEqual(today)) {
+            throw new RuntimeException("Session date does not match today");
+        }
+
+        // 4. Validate session time
+        if (now.isBefore(session.getStartTime().minusMinutes(15))) {
+            throw new RuntimeException("Too early to mark attendance for this session");
+        }
+
+        if (now.isAfter(session.getEndTime())) {
+            throw new RuntimeException("Session already ended");
+        }
+
+        // 5. Prevent duplicate marking
+        if (attendanceRepo.existsByStudentAndSession(student, session)) {
+            throw new RuntimeException("Attendance already marked");
+        }
+
+        // 6. Decide attendance status
+        AttendanceStatus status;
+        if (now.isBefore(session.getStartTime().plusMinutes(20))) {
+            status = AttendanceStatus.PRESENT;
+        } else if (now.isBefore(session.getEndTime())) {
+            status = AttendanceStatus.LATE;
+        } else {
+            status = AttendanceStatus.ABSENT;
+        }
+
+        // 7. Save attendance
+        Attendance attendance = new Attendance();
+        attendance.setStudent(student);
+        attendance.setSession(session);
+        attendance.setStatus(status);
+        attendanceRepo.save(attendance);
+
+        log.info("Attendance [{}] marked: Student {} for session {}", status, student.getId(), sessionId);
+
+        // 8. Send email
+        emailService.sendAttendanceEmails(student, session, status);
+
+        // 9. Audit
+        log.info("Audit: Attendance marked by {}", performedBy);
+    }
+
+
 
 }
 
