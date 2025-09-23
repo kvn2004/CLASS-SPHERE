@@ -6,6 +6,7 @@ import lk.vihanganimsara.classsphere.entity.Attendance;
 import lk.vihanganimsara.classsphere.entity.AttendanceStatus;
 import lk.vihanganimsara.classsphere.entity.CourseSession;
 import lk.vihanganimsara.classsphere.entity.Student;
+import lk.vihanganimsara.classsphere.exception.*;
 import lk.vihanganimsara.classsphere.repository.AttendanceRepo;
 import lk.vihanganimsara.classsphere.repository.ClassSessionsRepo;
 import lk.vihanganimsara.classsphere.repository.StudentRepo;
@@ -127,32 +128,32 @@ public class AttendanceService {
     public void markAttendanceByStudentId(String studentId, String sessionId, String performedBy) {
         // 1. Find student by ID
         Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new StudentNotFound());
 
         // 2. Find session
         CourseSession session = sessionRepo.findByTrimmedSessionId(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+                .orElseThrow(() -> new SessionNotFound());
 
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
         // 3. Validate session date
         if (!session.getSessionDate().isEqual(today)) {
-            throw new RuntimeException("Session date does not match today");
+            throw new SessionDoesNotMatch();
         }
 
         // 4. Validate session time
         if (now.isBefore(session.getStartTime().minusMinutes(15))) {
-            throw new RuntimeException("Too early to mark attendance for this session");
+            throw new TooEarly();
         }
 
         if (now.isAfter(session.getEndTime())) {
-            throw new RuntimeException("Session already ended");
+            throw new SessionEnded();
         }
 
         // 5. Prevent duplicate marking
         if (attendanceRepo.existsByStudentAndSession(student, session)) {
-            throw new RuntimeException("Attendance already marked");
+            throw new DuplicateAttendence();
         }
 
         // 6. Decide attendance status

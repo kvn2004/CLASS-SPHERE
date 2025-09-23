@@ -139,7 +139,7 @@ $('#payHereBtn').on('click', function () {
 
             var payment = {
                 "sandbox": true,
-                "merchant_id": res.merchantId,    // Replace your Merchant ID
+                "merchant_id": "1232106",    // Replace your Merchant ID
                 "return_url": "http://127.0.0.1:5500/pages/payments-success.html",     // Important
                 "cancel_url": "http://127.0.0.1:5500/pages/payments-cancel.html",     // Important
                 "notify_url": "http://localhost:8080/notify",
